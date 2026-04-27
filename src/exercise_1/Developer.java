@@ -9,13 +9,13 @@ public class Developer {
     private int yearsOfExperience;
     private boolean isFullStack;
 
-    // Constructor
+    // Constructor (Updated to use all parameters and setters)
     public Developer(String name, int age, String primaryLanguage, int yearsOfExperience, boolean isFullStack) {
-        setName(name); // Using setters in the constructor enforces integrity rules immediately
+        setName(name);
         setAge(age);
-        this.primaryLanguage = primaryLanguage;
-        this.yearsOfExperience = 0;
-        this.isFullStack = false;
+        setPrimaryLanguage(primaryLanguage);
+        setYearsOfExperience(yearsOfExperience);
+        setFullStack(isFullStack);
     }
 
     // Setters with Integrity Checks
@@ -38,13 +38,12 @@ public class Developer {
             throw new IllegalArgumentException("Experience cannot be negative.");
         }
         if (years > (this.age - 10)) {
-            // Logical check: A person couldn't have started coding before age 10
             throw new IllegalArgumentException("Years of experience is mathematically invalid given the developer's age.");
         }
         this.yearsOfExperience = years;
     }
 
-    // Standard Setters/Getters
+    // Standard Setters
     public void setPrimaryLanguage(String language) {
         this.primaryLanguage = language;
     }
@@ -52,7 +51,6 @@ public class Developer {
     public void setFullStack(boolean isFullStack) {
         this.isFullStack = isFullStack;
     }
-
 
     // Method to print the object's state exactly like the UML diagram
     public void displayObjectState() {
