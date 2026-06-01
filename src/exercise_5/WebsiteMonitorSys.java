@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-// --- 1. INTERFACES FOR OBSERVER PATTERN ---
+// INTERFACES FOR OBSERVER PATTERN
 interface Observer {
     void update(String message);
 }
@@ -15,7 +15,7 @@ interface Subject {
     void notifyObservers();
 }
 
-// --- 2. THE CORE SYSTEM ---
+// THE CORE SYSTEM
 public class WebsiteMonitorSys {
     private List<User> users = new ArrayList<>();
     private List<Website> websites = new ArrayList<>();
