@@ -4,6 +4,45 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+// The common interface for all comparison strategies
+interface WebsiteComparisonStrategy {
+    boolean isContentDifferent(String oldContent, String newContent);
+}
+
+// Strategy 1: Identical content size
+class SizeComparisonStrategy implements WebsiteComparisonStrategy {
+    @Override
+    public boolean isContentDifferent(String oldContent, String newContent) {
+        if (oldContent == null || newContent == null) return true;
+        // Just checks if the length of the string has changed
+        return oldContent.length() != newContent.length();
+    }
+}
+
+// Strategy 2: Identical HTML content
+class HtmlComparisonStrategy implements WebsiteComparisonStrategy {
+    @Override
+    public boolean isContentDifferent(String oldContent, String newContent) {
+        if (oldContent == null || newContent == null) return true;
+        // Strictly checks if the raw HTML strings are exactly the same
+        return !oldContent.equals(newContent);
+    }
+}
+
+// Strategy 3: Identical text content (ignoring HTML tags)
+class TextComparisonStrategy implements WebsiteComparisonStrategy {
+    @Override
+    public boolean isContentDifferent(String oldContent, String newContent) {
+        if (oldContent == null || newContent == null) return true;
+
+        // A simple trick to strip out HTML tags using a regular expression, leaving just the text
+        String oldTextOnly = oldContent.replaceAll("<[^>]*>", "").trim();
+        String newTextOnly = newContent.replaceAll("<[^>]*>", "").trim();
+
+        return !oldTextOnly.equals(newTextOnly);
+    }
+}
+
 // INTERFACES FOR OBSERVER PATTERN
 interface Observer {
     void update(String message);
@@ -34,7 +73,7 @@ public class WebsiteMonitorSys {
     public void triggerGlobalCheck() {
         System.out.println("\n[System] Running scheduled check on all websites...");
         for (Website site : websites) {
-            site.fetchCurrentContent();
+            site.fetchCurrentContent("<html>Simulated new content downloaded from the internet</html>");
         }
     }
 }
@@ -43,37 +82,51 @@ public class WebsiteMonitorSys {
 
 class Website implements Subject {
     private String url;
-    // This list holds all the observers (subscriptions) watching this website
+    private String savedContent; // Stores the last known state of the website
+    private WebsiteComparisonStrategy comparisonStrategy; // The "brain"
     private List<Observer> observers = new ArrayList<>();
 
     public Website(String url) {
         this.url = url;
+        this.savedContent = "";
+        // Default to checking the raw HTML if no strategy is specified
+        this.comparisonStrategy = new HtmlComparisonStrategy();
     }
 
     public String getUrl() { return this.url; }
 
-    @Override
-    public void attach(Observer o) {
-        observers.add(o);
+    // Let the user swap strategies on the fly!
+    public void setComparisonStrategy(WebsiteComparisonStrategy newStrategy) {
+        this.comparisonStrategy = newStrategy;
     }
 
     @Override
-    public void detach(Observer o) {
-        observers.remove(o);
-    }
+    public void attach(Observer o) { observers.add(o); }
+
+    @Override
+    public void detach(Observer o) { observers.remove(o); }
 
     @Override
     public void notifyObservers() {
         for (Observer o : observers) {
-            o.update("AUTOMATIC ALERT: Update found for " + this.url);
+            o.update("AUTOMATIC ALERT: Changes detected on " + this.url);
         }
     }
 
-    // Simulating the website checking the internet for changes
-    public void fetchCurrentContent() {
-        System.out.println("[Website Backend] Detected changes on " + url);
-        // As soon as a change is found, it automatically shouts out to everyone listening!
-        notifyObservers();
+    // Updated to use the Strategy Pattern
+    public void fetchCurrentContent(String newlyDownloadedContent) {
+        System.out.println("[System] Checking " + url + "...");
+
+        // Use whichever strategy is currently equipped to do the math
+        boolean hasChanged = comparisonStrategy.isContentDifferent(savedContent, newlyDownloadedContent);
+
+        if (hasChanged) {
+            System.out.println("  -> Change detected! Updating saved data and notifying users.");
+            this.savedContent = newlyDownloadedContent;
+            notifyObservers();
+        } else {
+            System.out.println("  -> No changes found based on current rules.");
+        }
     }
 }
 
