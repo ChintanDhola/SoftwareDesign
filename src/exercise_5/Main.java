@@ -3,9 +3,17 @@ package exercise_5;
 public class Main {
     public static void main(String[] args) {
 
+        // Check if a URL was passed via the command line
+        String targetUrl = "https://www.frankfurt-university.de"; // Default fallback
+        if (args.length > 0) {
+            targetUrl = args[0]; // Use the command line parameter if provided!
+        }
+
         System.out.println("[System Setup]");
         WebsiteMonitorSys monitorSystem = new WebsiteMonitorSys();
-        Website testSite = new Website("https://www.frankfurt-university.de");
+
+        // Use the variable here instead of the hardcoded string
+        Website testSite = new Website(targetUrl);
         monitorSystem.addWebsite(testSite);
 
         // Create two users to prove the Observer pattern notifies multiple people
@@ -25,19 +33,13 @@ public class Main {
         System.out.println("\nTesting Strategy Pattern");
 
         System.out.println("\n[Test A] Using Default HTML Strategy");
-
         testSite.fetchCurrentContent("<body>Welcome to the University</body>");
 
-
         System.out.println("\n[Test B] Switching to Text Strategy");
-
         testSite.setComparisonStrategy(new TextComparisonStrategy());
-
         testSite.fetchCurrentContent("<div>Welcome to the University</div>");
 
-
         System.out.println("\n[Test C] Changing the actual text");
-
         testSite.fetchCurrentContent("<div>Classes are cancelled today!</div>");
     }
 }
